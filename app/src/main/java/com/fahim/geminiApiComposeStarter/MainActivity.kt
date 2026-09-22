@@ -7,6 +7,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+
 import com.fahim.geminiApiComposeStarter.data.ChatDatabase
 import com.fahim.geminiApiComposeStarter.data.GeminiRepositoryImpl
 import com.fahim.geminiApiComposeStarter.data.SecureApiKeyStorage
@@ -45,6 +51,7 @@ class MainActivity : ComponentActivity() {
         if (!storedKey.isNullOrBlank()) {
             storedKey
         } else {
+
             val initialKey = BuildConfig.GEMINI_API_KEY
 
             if (initialKey.isNotBlank()) {
@@ -78,9 +85,27 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            GeminiApiComposeStarterTheme {
+
+            // Get system theme OUTSIDE rememberSaveable
+            val systemDarkTheme = isSystemInDarkTheme()
+
+            // Store current theme choice
+            var isDarkTheme by rememberSaveable {
+                mutableStateOf(systemDarkTheme)
+            }
+
+            GeminiApiComposeStarterTheme(
+                darkTheme = isDarkTheme
+            ) {
+
                 ChatRoute(
-                    viewModel = viewModel
+                    viewModel = viewModel,
+
+                    isDarkTheme = isDarkTheme,
+
+                    onThemeToggle = {
+                        isDarkTheme = !isDarkTheme
+                    }
                 )
             }
         }

@@ -76,7 +76,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ChatRoute(
-    viewModel: ChatViewModel
+    viewModel: ChatViewModel,
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit
 ) {
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -147,7 +149,11 @@ fun ChatRoute(
                     ).show()
                 }
             }
-        }
+        },
+
+        isDarkTheme = isDarkTheme,
+
+        onThemeToggle = onThemeToggle
     )
 }
 
@@ -163,7 +169,9 @@ fun ChatScreen(
     onSend: () -> Unit,
     onResponseStyleChange: (String) -> Unit,
     onClearChat: () -> Unit,
-    onExportChat: () -> Unit
+    onExportChat: () -> Unit,
+    isDarkTheme: Boolean,
+    onThemeToggle: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -311,6 +319,7 @@ fun ChatScreen(
                         showClearDialog = false
                     }
                 ) {
+
                     Text("Cancel")
                 }
             }
@@ -318,9 +327,9 @@ fun ChatScreen(
     }
 
 
-    // =================================================
+    // =====================================================
     // MAIN SCAFFOLD
-    // =================================================
+    // =====================================================
 
     Scaffold(
 
@@ -383,23 +392,41 @@ fun ChatScreen(
                     )
 
 
-                    // Export + Clear buttons
+                    // Theme + Export + Clear buttons
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
 
-                        TextButton(
+                        // Theme Toggle
+                        IconButton(
+                            onClick = onThemeToggle
+                        ) {
 
+                            Text(
+                                text = if (isDarkTheme) {
+                                    "☀️"
+                                } else {
+                                    "🌙"
+                                },
+                                fontSize = 22.sp
+                            )
+                        }
+
+
+                        // Export Button
+                        TextButton(
                             onClick = onExportChat,
 
                             enabled = state.messages.isNotEmpty() &&
                                     !state.isLoading
 
                         ) {
+
                             Text("Export")
                         }
 
 
+                        // Clear Button
                         TextButton(
 
                             onClick = {
@@ -561,6 +588,7 @@ fun ChatScreen(
                                 context.packageManager
                             ) != null
                         ) {
+
                             voiceLauncher.launch(voiceIntent)
                         }
                     }
@@ -598,6 +626,7 @@ private fun ResponseStyleSelector(
                     expanded = true
                 }
             ) {
+
                 Text(selectedStyle)
             }
         }
@@ -864,7 +893,11 @@ private fun ChatScreenPreview() {
 
             onClearChat = {},
 
-            onExportChat = {}
+            onExportChat = {},
+
+            isDarkTheme = false,
+
+            onThemeToggle = {}
         )
     }
 }
